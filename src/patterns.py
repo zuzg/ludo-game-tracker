@@ -32,12 +32,10 @@ def check_match_template(image:np.ndarray,templates:list[np.ndarray], threshold:
             return True
     return False
 
-def get_playing_area(image_name: str, rect_size:tuple[int], 
+def get_playing_area(image: np.ndarray, rect_size:tuple[int], 
             color:tuple[int], display_steps:bool = False) -> np.ndarray:
 
     TEMPLATES = [cv2.imread(f"./data/templates/playing_area/{i}.jpg", cv2.IMREAD_GRAYSCALE) for i in range(1,6)]
-
-    image = cv2.imread(image_name)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # reduce image noise
