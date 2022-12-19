@@ -5,7 +5,7 @@
 * description: a strategy board game for two to four players, in which the players race their four tokens from start to finish according to the rolls of a single die.
 * in-game items:
     * 16 tokens (4 of each colour)
-    * 2 dice
+    * 1 dice
     * 1 board
 * events:
     * rolling dice (number of dots)
