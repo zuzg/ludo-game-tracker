@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from src.utils import imshow
+from src.utils import *
 
 def match_patterns(board, templates, color, threshold=0.8):
     board_matched = board.copy()
@@ -18,8 +18,24 @@ def match_patterns(board, templates, color, threshold=0.8):
 
     return board_matched
 
+def check_match_template(image:np.ndarray,templates:list[np.ndarray], threshold:float=0.8) -> bool:
+    for template in templates:
+        # image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # template_gray = cv2.cvtColor(t, cv2.COLOR_BGR2GRAY)
+        # imshow(image)
+        if image.shape[0] < template.shape[0] or image.shape[1] < template.shape[1]:
+            if image.shape[1] > template.shape[1] or image.shape[0] > template.shape[0]:
+                return False
+            image, template = template, image
+        res = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+        if np.any(np.where(res > threshold)):
+            return True
+    return False
+
 def get_playing_area(image_name: str, rect_size:tuple[int], 
             color:tuple[int], display_steps:bool = False) -> np.ndarray:
+
+    TEMPLATES = [cv2.imread(f"./data/templates/playing_area/{i}.jpg", cv2.IMREAD_GRAYSCALE) for i in range(1,6)]
 
     image = cv2.imread(image_name)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -41,11 +57,18 @@ def get_playing_area(image_name: str, rect_size:tuple[int],
 
     # draw contours on the original image
     image_res = image.copy()
+    pad=2
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
-        if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.5 or h/w > 1.5:
+        if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.4 or h/w > 1.4:
             continue
-        cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
+        sub_img = image[y:y+h,x:x+w]
+        # check if treat the sub image as a field
+        sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
+        if is_mostly_white(sub_img_gray):
+            cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
+        elif check_match_template(sub_img_gray, TEMPLATES, 0.6):
+            cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
 
     if display_steps:
         imshow(np.concatenate([gray, edges, thresh], 1))
