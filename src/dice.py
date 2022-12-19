@@ -21,7 +21,6 @@ def get_dice_from_blobs(blobs):
     X = []
     for b in blobs:
         pos = b.pt
-
         if pos != None:
             X.append(pos)
 
@@ -61,3 +60,11 @@ def overlay_info(frame, dice, blobs):
                     cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
         # print(d[0])
         # d[0] - number on die
+
+
+def get_dice_number(frame):
+    blobs = get_blobs(frame)
+    dice = get_dice_from_blobs(blobs)
+    overlay_info(frame, dice, blobs)
+    return frame
+    
