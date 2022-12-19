@@ -32,9 +32,10 @@ def check_match_template(image:np.ndarray,templates:list[np.ndarray], threshold:
             return True
     return False
 
-def get_playing_area(image: np.ndarray, rect_size:tuple[int], 
-            color:tuple[int], display_steps:bool = False) -> np.ndarray:
+def get_playing_area(image: np.ndarray, rect_size:tuple[int], pattern_threshold:float=0.6, 
+        color:tuple[int]=(0,0,255), display_steps:bool = False) -> tuple[np.ndarray, list[int]]:
 
+    tiles_coords = list()
     TEMPLATES = [cv2.imread(f"./data/templates/playing_area/{i}.jpg", cv2.IMREAD_GRAYSCALE) for i in range(1,6)]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -65,10 +66,12 @@ def get_playing_area(image: np.ndarray, rect_size:tuple[int],
         sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
         if is_mostly_white(sub_img_gray):
             cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-        elif check_match_template(sub_img_gray, TEMPLATES, 0.6):
+            tiles_coords.append(((x, y), (x + w, y + h)))
+        elif check_match_template(sub_img_gray, TEMPLATES, pattern_threshold):
             cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
+            tiles_coords.append(((x, y), (x + w, y + h)))
 
     if display_steps:
         imshow(np.concatenate([gray, edges, thresh], 1))
         imshow(np.concatenate([image, image_res], 1))
-    return image_res
+    return image_res, tiles_coords
