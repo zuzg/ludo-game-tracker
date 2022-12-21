@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 from src.utils import *
 
-def match_patterns(board:np.ndarray, templates:list[str], color:tuple[int], threshold:float=0.8) -> tuple[np.ndarray, list[int]]:
+
+def match_patterns(board: np.ndarray, templates: list[str], color: tuple[int], threshold: float = 0.8) -> tuple[np.ndarray, list[int]]:
     coords = list()
     board_matched = board.copy()
     board_gray = cv2.cvtColor(board_matched, cv2.COLOR_BGR2GRAY)
@@ -20,7 +21,8 @@ def match_patterns(board:np.ndarray, templates:list[str], color:tuple[int], thre
 
     return board_matched, coords
 
-def check_match_template(image:np.ndarray, templates:list[np.ndarray], threshold:float=0.8) -> bool:
+
+def check_match_template(image: np.ndarray, templates: list[np.ndarray], threshold: float = 0.8) -> bool:
     for template in templates:
         # image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         template_gray = cv2.imread(template, cv2.IMREAD_GRAYSCALE)
@@ -34,8 +36,9 @@ def check_match_template(image:np.ndarray, templates:list[np.ndarray], threshold
             return True
     return False
 
-def get_playing_area(image: np.ndarray, rect_size:tuple[int], templates:list[str], pattern_threshold:float=0.6, 
-        color:tuple[int]=(0,0,255), display_steps:bool = False) -> tuple[np.ndarray, list[int]]:
+
+def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[str], pattern_threshold: float = 0.6,
+                     color: tuple[int] = (0, 0, 255), display_steps: bool = False) -> tuple[np.ndarray, list[int]]:
 
     tiles_coords = list()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -61,7 +64,7 @@ def get_playing_area(image: np.ndarray, rect_size:tuple[int], templates:list[str
         (x, y, w, h) = cv2.boundingRect(contour)
         if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.4 or h/w > 1.4:
             continue
-        sub_img = image[y:y+h,x:x+w]
+        sub_img = image[y:y+h, x:x+w]
         # check if treat the sub image as a field
         sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
         if is_mostly_white(sub_img_gray):

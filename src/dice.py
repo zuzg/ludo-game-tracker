@@ -9,7 +9,7 @@ params.minInertiaRatio = 0.6
 detector = cv2.SimpleBlobDetector_create(params)
 
 
-def get_blobs(frame):
+def get_blobs(frame: np.ndarray):
     frame_blurred = cv2.medianBlur(frame, 7)
     frame_gray = cv2.cvtColor(frame_blurred, cv2.COLOR_BGR2GRAY)
     blobs = detector.detect(frame_gray)
@@ -42,7 +42,7 @@ def get_dice_from_blobs(blobs):
         return []
 
 
-def overlay_info(frame, dice, blobs):
+def overlay_info(frame: np.ndarray, dice, blobs) -> None:
     for b in blobs:
         pos = b.pt
         r = b.size / 2
@@ -62,9 +62,8 @@ def overlay_info(frame, dice, blobs):
         # d[0] - number on die
 
 
-def get_dice_number(frame):
+def get_dice_number(frame: np.ndarray) -> np.ndarray:
     blobs = get_blobs(frame)
     dice = get_dice_from_blobs(blobs)
     overlay_info(frame, dice, blobs)
     return frame
-    

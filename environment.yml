@@ -1,0 +1,13 @@
+name: cv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - jupyter
+  - pandas
+  - numpy
+  - matplotlib
+  - scikit-learn
+  - opencv
+  - pillow
