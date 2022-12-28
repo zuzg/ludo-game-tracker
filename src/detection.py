@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np.ndarray, list[int]]:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # reduce image noise
@@ -29,3 +30,16 @@ def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np
 
     cv2.rectangle(image_res, (max_x, max_y), (max_x + max_w, max_y + max_h), color, 2)
     return image_res, (max_x, max_y, max_w, max_h)
+
+
+def check_intersection(boxA: tuple, boxB: tuple) -> bool:
+    x = max(boxA[0], boxB[0])
+    y = max(boxA[1], boxB[1])
+    w = min(boxA[0] + boxA[2], boxB[0] + boxB[2]) - x
+    h = min(boxA[1] + boxA[3], boxB[1] + boxB[3]) - y
+
+    intersected = True
+    if w < 0 or h < 0:
+        intersected = False
+
+    return intersected
