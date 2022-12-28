@@ -22,7 +22,7 @@ def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
 
-        if w > max_w and h > max_h: 
+        if w * h > max_w * max_h: 
             max_w = w
             max_h = h
             max_x, max_y = x, y

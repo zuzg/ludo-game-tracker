@@ -38,7 +38,7 @@ def check_match_template(image: np.ndarray, templates: list[np.ndarray], thresho
     return False
 
 
-def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[str], pattern_threshold: float = 0.6,
+def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[str] = None, pattern_threshold: float = 0.6,
                      color: tuple[int] = (0, 0, 255), display_steps: bool = False) -> tuple[np.ndarray, list[int]]:
 
     tiles_coords = list()
@@ -65,20 +65,23 @@ def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[s
         (x, y, w, h) = cv2.boundingRect(contour)
         if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.4 or h/w > 1.4:
             continue
-        sub_img = image[y:y+h, x:x+w]
-        # check if treat the sub image as a field
-        sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
-        if is_mostly_white(sub_img_gray):
-            cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-            tiles_coords.append(((x, y), (x + w, y + h)))
-        elif check_match_template(sub_img_gray, templates, pattern_threshold):
-            cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-            tiles_coords.append(((x, y), (x + w, y + h)))
+        tiles_coords.append(((x, y), (x + w, y + h)))
 
-    img, coords = match_patterns(image, templates, color)
-    for c in coords:
-        cv2.rectangle(image_res, c[0], c[1], color, 2)
-        tiles_coords.append((c[0], c[1]))
+
+        # sub_img = image[y:y+h, x:x+w]
+        # # check if treat the sub image as a field
+        # sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
+        # if is_mostly_white(sub_img_gray):
+        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
+        #     tiles_coords.append(((x, y), (x + w, y + h)))
+        # elif check_match_template(sub_img_gray, templates, pattern_threshold):
+        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
+        #     tiles_coords.append(((x, y), (x + w, y + h)))
+
+    # img, coords = match_patterns(image, templates, color)
+    # for c in coords:
+    #     cv2.rectangle(image_res, c[0], c[1], color, 2)
+    #     tiles_coords.append((c[0], c[1]))
     if display_steps:
         imshow(np.concatenate([gray, thresh], 1))
         imshow(cv2.resize(image_res, None, fx=0.8, fy=0.8))
