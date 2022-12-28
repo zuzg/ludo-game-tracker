@@ -8,6 +8,7 @@ def match_patterns(board: np.ndarray, templates: list[str], color: tuple[int], t
     board_matched = board.copy()
     board_gray = cv2.cvtColor(board_matched, cv2.COLOR_BGR2GRAY)
     for t in templates:
+        # print(t)
         template = cv2.imread(t, 1)
         template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
