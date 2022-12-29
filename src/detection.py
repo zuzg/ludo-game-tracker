@@ -121,6 +121,13 @@ def map_points_coords(img_coords, coords_list):
         x, y, w, h = coord
         coords_updated((x+x_p, y+y_p, w, h))
 
+def get_score(counters:list, yards_objects:dict):
+    in_yard = {'red':0, 'green':0, 'blue':0, 'yellow':0}
+    for counter in counters:
+        if objects_intersect(counter, yards_objects[counter.color][0]):
+            if in_yard[counter.color] < 4:
+                in_yard[counter.color] +=1
+    return in_yard
 
 def detect_counters(frame: np.ndarray, board_img) -> list:
     img_counters_board, img_counters_cropped, img_counters_coords = detect_board(frame)
@@ -147,8 +154,7 @@ def detect_counters(frame: np.ndarray, board_img) -> list:
             counter.y += y_board
             counter_list.append(counter)
 
-    return counter_list
-    
+    return counter_list    
 
 def check_intersection(boxA: tuple, boxB: tuple) -> bool:
     x = max(boxA[0], boxB[0])
@@ -161,6 +167,10 @@ def check_intersection(boxA: tuple, boxB: tuple) -> bool:
         intersected = False
 
     return intersected
+
+def objects_intersect(obj1:GameObject, obj2:GameObject) -> bool:
+    return (obj1.x < obj2.x + obj2.w and obj1.x + obj1.w > obj2.x and
+            obj1.y < obj2.y + obj2.h and obj1.y + obj1.h > obj2.y)
 
 
 def has_won(checkers: list[tuple]) -> bool:

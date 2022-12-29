@@ -3,7 +3,6 @@ import PIL
 import numpy as np
 from IPython.display import display
 
-
 def imshow(a):
     a = a.clip(0, 255).astype('uint8')
     if a.ndim == 3:
@@ -78,6 +77,15 @@ def get_percentage_value_pixels(image:np.ndarray, value:int=255) -> float:
     white_pixels = np.sum((image[:,:,0] == value) & (image[:,:,1] == value) & (image[:,:,2] == value))
   percentage = white_pixels / (image.shape[0] * image.shape[1]) * 100
   return percentage
+
+def map_coords(coords_dict, board_coords):
+    coords_dict_temp=coords_dict.copy()
+    x_board, y_board, _, _ = board_coords
+    for k in coords_dict_temp.keys():
+        for object in coords_dict_temp[k]:
+            object.x += x_board
+            object.y += y_board
+    return coords_dict_temp
 
 
 def determine_color(image:np.ndarray, color_percentage:float=0.25) -> str:
