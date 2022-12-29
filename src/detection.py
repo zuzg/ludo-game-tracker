@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from src.utils import *
+from src.patterns import create_masks, take_masks_difference
 
 
 def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np.ndarray, list[int]]:
@@ -111,6 +112,42 @@ def filter_coords(coords_ranked, img):
         if color is not None:
             coords_ranked_filtered.append((point, color))
     return coords_ranked_filtered
+
+
+def map_points_coords(img_coords, coords_list):
+    x_p, y_p, w_p, h_p, = img_coords
+    coords_updated = list()
+    for coord in coords_list:
+        x, y, w, h = coord
+        coords_updated((x+x_p, y+y_p, w, h))
+
+
+def detect_counters(frame: np.ndarray, board_img) -> list:
+    img_counters_board, img_counters_cropped, img_counters_coords = detect_board(frame)
+    playing_area, fields_coords = get_playing_fields(board_img, rect_size=(30,100))
+    mask_img_list = create_masks(board_img, fields_coords)
+    WIDTH = board_img.shape[0]
+    HEIGHT = board_img.shape[1]
+    resized_img = cv2.resize(img_counters_cropped, (HEIGHT, WIDTH), interpolation=cv2.INTER_LINEAR)
+    assert board_img.shape == resized_img.shape
+    counters_img = take_masks_difference(resized_img, mask_img_list)
+
+    coords_ranked = get_counters_coords(counters_img, fields_coords)
+    top16 = [tuple[0] for tuple in coords_ranked[:16]]
+    coords_ranked_filtered = filter_coords(coords_ranked, resized_img)
+
+    top_16 = coords_ranked_filtered[:16]
+    top_16_mapped = map_points_coords()
+
+
+    counter_list = list()
+    for point, color in top_16:
+        counter = GameObject(point[0][0], point[0][1], point[1][0]-point[0][0], point[1][1]-point[0][1], color)
+        counter_list.append(counter)
+
+
+
+    return counter_list
 
 
 def check_intersection(boxA: tuple, boxB: tuple) -> bool:
