@@ -38,51 +38,23 @@ def check_match_template(image: np.ndarray, templates: list[np.ndarray], thresho
     return False
 
 
-def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[str] = None, pattern_threshold: float = 0.6,
-                     color: tuple[int] = (0, 0, 255), display_steps: bool = False) -> tuple[np.ndarray, list[int]]:
+def create_masks(image:np.ndarray, coords_list:tuple[int]) -> list[np.ndarray]:
+    mask_img_list = list()
+    mask = np.zeros_like(image)
+    for p1, p2 in coords_list:
+        temp_mask = mask.copy()
+        cv2.rectangle(temp_mask, (p1[0], p1[1]), (p2[0], p2[1]), (255, 255, 255), -1)
 
-    tiles_coords = list()
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # reduce image noise
-    gray = cv2.GaussianBlur(gray, (7, 7), 0)
-    gray = cv2.medianBlur(gray, 7)
-
-    # detect the edges
-    edges = cv2.Canny(gray, 50, 150)
-
-    # morphological operations applied to refine the edges of the fields
-    kernel = np.ones((2, 2), np.uint8)
-    thresh = cv2.dilate(edges, kernel, iterations=1)
-    thresh = cv2.erode(thresh, kernel, iterations=1)
-
-    # contour detection
-    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-    # draw contours on the original image
-    image_res = image.copy()
-    for contour in contours:
-        (x, y, w, h) = cv2.boundingRect(contour)
-        if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.4 or h/w > 1.4:
-            continue
-        tiles_coords.append(((x, y), (x + w, y + h)))
+        # apply mask
+        masked_image = cv2.bitwise_and(image, temp_mask)
+        mask_img_list.append(masked_image)
+    
+    return mask_img_list
 
 
-        # sub_img = image[y:y+h, x:x+w]
-        # # check if treat the sub image as a field
-        # sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
-        # if is_mostly_white(sub_img_gray):
-        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-        #     tiles_coords.append(((x, y), (x + w, y + h)))
-        # elif check_match_template(sub_img_gray, templates, pattern_threshold):
-        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-        #     tiles_coords.append(((x, y), (x + w, y + h)))
-
-    # img, coords = match_patterns(image, templates, color)
-    # for c in coords:
-    #     cv2.rectangle(image_res, c[0], c[1], color, 2)
-    #     tiles_coords.append((c[0], c[1]))
-    if display_steps:
-        imshow(np.concatenate([gray, thresh], 1))
-        imshow(cv2.resize(image_res, None, fx=0.8, fy=0.8))
-    return image_res, tiles_coords
+def take_masks_difference(image:np.ndarray, mask_img_list:list[np.ndarray]) -> np.ndarray:
+    difference_img = np.zeros_like(image)
+    for m in mask_img_list:
+        subtracted = cv2.subtract(m, image)
+        difference_img = cv2.bitwise_or(difference_img, subtracted)
+    return difference_img
