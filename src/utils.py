@@ -3,6 +3,8 @@ import PIL
 import numpy as np
 from IPython.display import display
 
+COLOR_VALUES = {'red': (0,0,255), 'green':(0,255,0), 'blue':(255,0,0), 'yellow':(0,255,255)}
+
 def imshow(a):
     a = a.clip(0, 255).astype('uint8')
     if a.ndim == 3:
@@ -87,6 +89,16 @@ def map_coords(coords_dict, board_coords):
             object.y += y_board
     return coords_dict_temp
 
+def draw_score(img:np.ndarray, yard_scores:dict[str:int], base_scores:dict[str:int], yards_objects, bases_objects) -> np.ndarray:
+    img_score = img.copy()
+    for k in yard_scores.keys():
+        org = (yards_objects[k][0].x, yards_objects[k][0].y)
+        img_score = cv2.putText(img_score, f'Yard: {yard_scores[k]}', org, cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_VALUES[k], 2, cv2.LINE_AA)
+
+    for k in base_scores.keys():
+        org = (bases_objects[k][0].x, bases_objects[k][0].y)
+        img_score = cv2.putText(img_score, f'Base: {base_scores[k]}', org, cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_VALUES[k], 2, cv2.LINE_AA)
+    return img_score
 
 def determine_color(image:np.ndarray, color_percentage:float=0.25) -> str:
     image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
