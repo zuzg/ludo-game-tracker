@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from src.utils import *
 
+
 def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np.ndarray, list[int]]:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # reduce image noise
@@ -100,6 +101,7 @@ def get_counters_coords(counters_img:np.ndarray, fields_coords:list[np.ndarray],
 
     coords_ranked.sort(key = lambda x: x[1], reverse=True)
     return coords_ranked
+
 
 def filter_coords(coords_ranked, img):
     coords_ranked_filtered = list()

@@ -3,6 +3,7 @@ import PIL
 import numpy as np
 from IPython.display import display
 
+
 def imshow(a):
     a = a.clip(0, 255).astype('uint8')
     if a.ndim == 3:
@@ -12,6 +13,7 @@ def imshow(a):
             a = cv2.cvtColor(a, cv2.COLOR_BGR2RGB)
     display(PIL.Image.fromarray(a))
 
+
 class GameObject:
     def __init__(self, x, y, w, h, color):
         self.x = x
@@ -20,7 +22,8 @@ class GameObject:
         self.h = h
         self.color = color
     def show(self, image):
-        imshow(image[self.y:self.y+self.h,self.x:self.x+self.w])
+        imshow(image[self.y:self.y+self.h, self.x:self.x+self.w])
+
 
 def cv2_imshow(title, img):
     """
@@ -63,6 +66,7 @@ def get_percentage_value_pixels(image:np.ndarray, value:int=255) -> float:
     white_pixels = np.sum((image[:,:,0] == value) & (image[:,:,1] == value) & (image[:,:,2] == value))
   percentage = white_pixels / (image.shape[0] * image.shape[1]) * 100
   return percentage
+
 
 def determine_color(image:np.ndarray) -> str:
     image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
