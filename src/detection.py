@@ -33,7 +33,7 @@ def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np
     return image_res, image_cropped, (max_x, max_y, max_w, max_h)
 
 
-def get_playing_fields(image: np.ndarray, rect_size: tuple[int], color: tuple[int] = (0, 0, 255), display_steps: bool = False) -> tuple[np.ndarray, list[int]]:
+def get_playing_fields(image: np.ndarray, rect_size: tuple[int], color: tuple[int] = (0, 0, 255), display_steps: bool = False, display_rect_steps: bool = False) -> tuple[np.ndarray, list[int]]:
 
     tiles_coords = list()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -52,15 +52,30 @@ def get_playing_fields(image: np.ndarray, rect_size: tuple[int], color: tuple[in
 
     # contour detection
     contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    contours_sorted = list()
 
     # draw contours on the original image
     image_res = image.copy()
+    image_black_rects = image.copy()
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
         if w < rect_size[0] or w > rect_size[1] or h < rect_size[0] or h > rect_size[1] or w/h > 1.4 or h/w > 1.4:
             continue
+        contours_sorted.append(((x, y, w, h), w*h))
+    contours_sorted.sort(key = lambda x: x[1], reverse=True)
+
+    i=0
+    for (x, y, w, h), size in contours_sorted:
+        test_img = image_black_rects[y:y+h, x:x+w]
+        if get_percentage_value_pixels(test_img, 0) > 80:
+            continue
+        image_black_rects[y:y+h, x:x+w] = np.zeros((y+h-y, x+w-x, 3), np.uint8)
+        if display_rect_steps and i%50==0:
+            imshow(image_black_rects)
+        
         cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
         tiles_coords.append(((x, y), (x + w, y + h)))
+        i+=1
 
     if display_steps:
         imshow(np.concatenate([gray, thresh], 1))
@@ -80,11 +95,20 @@ def get_counters_coords(counters_img:np.ndarray, fields_coords:list[np.ndarray],
     for p1, p2 in fields_coords:
         img_cropped_bin = bin_mask[p1[1]:p2[1], p1[0]:p2[0]]
         # imshow(img_cropped_bin)
-        white_percentage = get_percentage_white_pixels(img_cropped_bin)
+        white_percentage = get_percentage_value_pixels(img_cropped_bin)
         coords_ranked.append(((p1, p2), white_percentage))
 
     coords_ranked.sort(key = lambda x: x[1], reverse=True)
     return coords_ranked
+
+def filter_coords(coords_ranked, img):
+    coords_ranked_filtered = list()
+    for point, percent in coords_ranked:
+        img_cropped = img[point[0][1]:point[1][1], point[0][0]:point[1][0]]
+        color = determine_color(img_cropped)
+        if color is not None:
+            coords_ranked_filtered.append((point, color))
+    return coords_ranked_filtered
 
 
 def check_intersection(boxA: tuple, boxB: tuple) -> bool:
