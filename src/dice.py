@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from sklearn import cluster
+import copy
 
 
 params = cv2.SimpleBlobDetector_Params()
@@ -67,3 +68,32 @@ def get_dice_number(frame: np.ndarray) -> np.ndarray:
     dice = get_dice_from_blobs(blobs)
     overlay_info(frame, dice, blobs)
     return frame
+
+
+def apply_mask(img: np.ndarray):
+    img_masked = copy.deepcopy(img)
+    hsv = cv2.cvtColor(img_masked, cv2.COLOR_BGR2HSV)
+
+    sensitivity = 60
+    lower_white = np.array([0, 0, 255-sensitivity])
+    upper_white = np.array([255, sensitivity, 255])
+    mask = cv2.inRange(hsv, lower_white, upper_white)
+    res = cv2.bitwise_and(img_masked, img_masked, mask=mask)
+
+    return res
+
+
+def get_contours(img: np.ndarray, area_min=10e4):
+    contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    areas = [cv2.contourArea(c) for c in contours]
+    contours = [c for n, c in enumerate(contours) if area_min < areas[n]]
+    return contours
+
+
+def get_rolling_area(img: np.ndarray):
+    masked = apply_mask(img)
+    masked_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
+    contours = get_contours(masked_gray)
+    x, y, w, h = cv2.boundingRect(contours[0])
+
+    return x
