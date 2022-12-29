@@ -43,3 +43,12 @@ def check_intersection(boxA: tuple, boxB: tuple) -> bool:
         intersected = False
 
     return intersected
+
+
+def has_won(checkers: list[tuple]) -> bool:
+    """
+    :param checkers: list of all checkers of one color
+    """
+    xs = [item[0] for item in checkers]
+    ys = [item[1] for item in checkers]
+    return np.allclose(xs, xs[0], atol=5) or np.allclose(ys, ys[1], atol=5)
