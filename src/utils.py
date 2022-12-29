@@ -3,10 +3,6 @@ import PIL
 import numpy as np
 from IPython.display import display
 
-
-
-
-
 def imshow(a):
     a = a.clip(0, 255).astype('uint8')
     if a.ndim == 3:
