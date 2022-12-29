@@ -24,6 +24,16 @@ class GameObject:
     def show(self, image):
         imshow(image[self.y:self.y+self.h, self.x:self.x+self.w])
 
+def create_game_objects(coords:tuple[int], image:np.ndarray, col_thres:float=.0) -> list[GameObject]:
+    game_objects = list()
+    for point in coords:
+        img_cropped = image[point[0][1]:point[1][1], point[0][0]:point[1][0]]
+        color = determine_color(img_cropped, col_thres)
+        game_object = GameObject(point[0][0], point[0][1], point[1][0]-point[0][0], point[1][1]-point[0][1], color)
+        game_objects.append(game_object)
+        # game_object.show(image)
+        # print(game_object.color)
+    return game_objects
 
 def cv2_imshow(title, img):
     """
@@ -68,7 +78,7 @@ def get_percentage_value_pixels(image:np.ndarray, value:int=255) -> float:
   return percentage
 
 
-def determine_color(image:np.ndarray) -> str:
+def determine_color(image:np.ndarray, color_percentage:float=0.25) -> str:
     image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color_groups = list()
 
@@ -105,7 +115,7 @@ def determine_color(image:np.ndarray) -> str:
     color_name = color_groups[0][0]
     pix_number = color_groups[0][1]
 
-    if  pix_number / (image.shape[0] * image.shape[1]) < 0.25:
+    if  pix_number / (image.shape[0] * image.shape[1]) < color_percentage:
         return None
 
     return color_name

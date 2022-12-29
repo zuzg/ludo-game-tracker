@@ -3,25 +3,21 @@ import cv2
 from src.utils import *
 
 
-def match_patterns(board: np.ndarray, templates: list[str], color: tuple[int], threshold: float = 0.8) -> tuple[np.ndarray, list[int]]:
+def match_patterns(board: np.ndarray, templates: list[str], color: tuple[int]) -> tuple[np.ndarray, list[int]]:
     coords = list()
     board_matched = board.copy()
     board_gray = cv2.cvtColor(board_matched, cv2.COLOR_BGR2GRAY)
     for t in templates:
-        # print(t)
         template = cv2.imread(t, 1)
         template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-
         h, w = template.shape[0], template.shape[1]
         corr = cv2.matchTemplate(board_gray, template_gray, cv2.TM_CCOEFF_NORMED)
-        loc = np.where(corr >= threshold)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(corr)
 
-        for pt in zip(*loc[::-1]):
-            cv2.rectangle(board_matched, pt, (pt[0] + w, pt[1] + h), color, 2)
-            coords.append((pt, (pt[0] + w, pt[1] + h)))
+        cv2.rectangle(board_matched, (max_loc[0], max_loc[1]), (max_loc[0]+template.shape[1], max_loc[1]+template.shape[0]), color, 2)
+        coords.append(((max_loc[0], max_loc[1]), (max_loc[0]+template.shape[1], max_loc[1]+template.shape[0])))
 
     return board_matched, coords
-
 
 def check_match_template(image: np.ndarray, templates: list[np.ndarray], threshold: float = 0.8) -> bool:
     for template in templates:
