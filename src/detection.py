@@ -85,3 +85,25 @@ def get_counters_coords(counters_img:np.ndarray, fields_coords:list[np.ndarray],
 
     coords_ranked.sort(key = lambda x: x[1], reverse=True)
     return coords_ranked
+
+
+def check_intersection(boxA: tuple, boxB: tuple) -> bool:
+    x = max(boxA[0], boxB[0])
+    y = max(boxA[1], boxB[1])
+    w = min(boxA[0] + boxA[2], boxB[0] + boxB[2]) - x
+    h = min(boxA[1] + boxA[3], boxB[1] + boxB[3]) - y
+
+    intersected = True
+    if w < 0 or h < 0:
+        intersected = False
+
+    return intersected
+
+
+def has_won(checkers: list[tuple]) -> bool:
+    """
+    :param checkers: list of all checkers of one color
+    """
+    xs = [item[0] for item in checkers]
+    ys = [item[1] for item in checkers]
+    return np.allclose(xs, xs[0], atol=5) or np.allclose(ys, ys[1], atol=5)
