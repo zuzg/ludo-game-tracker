@@ -13,6 +13,7 @@ def imshow(a):
             a = cv2.cvtColor(a, cv2.COLOR_BGR2RGB)
     display(PIL.Image.fromarray(a))
 
+
 def cv2_imshow(title, img):
     """
     function:
@@ -23,6 +24,7 @@ def cv2_imshow(title, img):
     cv2.imshow(title, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
 
 def play_video(video_path):
     cap = cv2.VideoCapture(video_path)
