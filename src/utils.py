@@ -24,15 +24,17 @@ class GameObject:
     def show(self, image):
         imshow(image[self.y:self.y+self.h, self.x:self.x+self.w])
 
-def create_game_objects(coords:tuple[int], image:np.ndarray, col_thres:float=.0) -> list[GameObject]:
-    game_objects = list()
+def create_game_objects(coords:tuple[int], image:np.ndarray, col_thres:float=.0) -> dict[str:list[GameObject]]:
+    colors = ['blue', 'green', 'yellow', 'red']
+    game_objects = dict([(c, list()) for c in colors])
     for point in coords:
         img_cropped = image[point[0][1]:point[1][1], point[0][0]:point[1][0]]
         color = determine_color(img_cropped, col_thres)
-        game_object = GameObject(point[0][0], point[0][1], point[1][0]-point[0][0], point[1][1]-point[0][1], color)
-        game_objects.append(game_object)
-        # game_object.show(image)
-        # print(game_object.color)
+        if color is not None:
+            game_object = GameObject(point[0][0], point[0][1], point[1][0]-point[0][0], point[1][1]-point[0][1], color)
+            # game_object.show(image)
+            # print(game_object.color)
+            game_objects[color].append(game_object)
     return game_objects
 
 def cv2_imshow(title, img):
