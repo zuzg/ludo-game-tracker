@@ -55,3 +55,45 @@ def get_percentage_white_pixels(image):
     white_pixels = np.sum((image[:,:,0] == 255) & (image[:,:,1] == 255) & (image[:,:,2] == 255))
   percentage = white_pixels / (image.shape[0] * image.shape[1]) * 100
   return percentage
+
+def determine_color(image):
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    color_groups = list()
+
+    # BLUE
+    lower_bound = (85, 100, 100)
+    upper_bound = (140, 255, 255)
+    mask_blue = cv2.inRange(image_hsv, lower_bound, upper_bound)
+    image_blue = cv2.bitwise_and(image, image, mask=mask_blue)
+    color_groups.append(('blue', np.count_nonzero(image_blue)))
+
+    # GREEN
+    lower_bound = (40, 100, 100)
+    upper_bound = (80, 255, 255)
+    mask_green = cv2.inRange(image_hsv, lower_bound, upper_bound)
+    image_green = cv2.bitwise_and(image, image, mask=mask_green)
+    color_groups.append(('green', np.count_nonzero(image_green)))
+
+    # YELLOW
+    lower_bound = (20, 100, 100)
+    upper_bound = (30, 255, 200)
+    mask_yellow = cv2.inRange(image_hsv, lower_bound, upper_bound)
+    image_yellow = cv2.bitwise_and(image, image, mask=mask_yellow)
+    color_groups.append(('yellow', np.count_nonzero(image_yellow)))
+    
+    # RED
+    lower_bound = (150, 100, 100)
+    upper_bound = (179, 255, 255)
+    mask_red = cv2.inRange(image_hsv, lower_bound, upper_bound)
+    image_red = cv2.bitwise_and(image, image, mask=mask_red)
+    color_groups.append(('red', np.count_nonzero(image_red)))
+
+    # imshow(image)
+    color_groups.sort(key = lambda x: x[1], reverse=True)
+    color_name = color_groups[0][0]
+    pix_number = color_groups[0][1]
+
+    if  pix_number / (image.shape[0] * image.shape[1]) < 0.25:
+        return None
+
+    return color_name
