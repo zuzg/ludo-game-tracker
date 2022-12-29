@@ -67,22 +67,29 @@ def get_playing_area(image: np.ndarray, rect_size: tuple[int], templates: list[s
             continue
         tiles_coords.append(((x, y), (x + w, y + h)))
 
-
-        # sub_img = image[y:y+h, x:x+w]
-        # # check if treat the sub image as a field
-        # sub_img_gray = cv2.cvtColor(sub_img, cv2.COLOR_BGR2GRAY)
-        # if is_mostly_white(sub_img_gray):
-        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-        #     tiles_coords.append(((x, y), (x + w, y + h)))
-        # elif check_match_template(sub_img_gray, templates, pattern_threshold):
-        #     cv2.rectangle(image_res, (x, y), (x + w, y + h), color, 2)
-        #     tiles_coords.append(((x, y), (x + w, y + h)))
-
-    # img, coords = match_patterns(image, templates, color)
-    # for c in coords:
-    #     cv2.rectangle(image_res, c[0], c[1], color, 2)
-    #     tiles_coords.append((c[0], c[1]))
     if display_steps:
         imshow(np.concatenate([gray, thresh], 1))
         imshow(cv2.resize(image_res, None, fx=0.8, fy=0.8))
     return image_res, tiles_coords
+
+
+def create_masks(image:np.ndarray, coords_list:tuple[int]) -> list[np.ndarray]:
+    mask_img_list = list()
+    mask = np.zeros_like(image)
+    for p1, p2 in coords_list:
+        temp_mask = mask.copy()
+        cv2.rectangle(temp_mask, (p1[0], p1[1]), (p2[0], p2[1]), (255, 255, 255), -1)
+
+        # apply mask
+        masked_image = cv2.bitwise_and(image, temp_mask)
+        mask_img_list.append(masked_image)
+    
+    return mask_img_list
+
+
+def take_masks_difference(image:np.ndarray, mask_img_list:list[np.ndarray]) -> np.ndarray:
+    difference_img = np.zeros_like(image)
+    for m in mask_img_list:
+        subtracted = cv2.subtract(m, image)
+        difference_img = cv2.bitwise_or(difference_img, subtracted)
+    return difference_img

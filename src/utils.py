@@ -46,9 +46,10 @@ def play_video(video_path):
     cv2.destroyAllWindows()
 
 
-### TO BE DELETED
-def is_mostly_white(img: np.ndarray, threshold: float = 0.6) -> bool:
-    _, img_bin = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
-    num_white_pixels = np.sum(img_bin == 255)
-    ratio = num_white_pixels / (img_bin.shape[0] * img_bin.shape[1])
-    return ratio >= threshold
+def get_percentage_white_pixels(image):
+  if len(image.shape) == 2:
+    white_pixels = np.sum(image == 255)
+  else:
+    white_pixels = np.sum((image[:,:,0] == 255) & (image[:,:,1] == 255) & (image[:,:,2] == 255))
+  percentage = white_pixels / (image.shape[0] * image.shape[1]) * 100
+  return percentage
