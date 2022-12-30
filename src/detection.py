@@ -145,8 +145,11 @@ def detect_counters(frame: np.ndarray, board_img) -> list:
     counters_img = take_masks_difference(resized_img, mask_img_list)
 
     coords_ranked = get_counters_coords(counters_img, fields_coords)
-    top16 = [tuple[0] for tuple in coords_ranked[:16]]
-    counter_objects = create_game_objects(top16, resized_img)
+    top_all = [tuple[0] for tuple in coords_ranked]
+    counter_objects = create_game_objects(top_all, resized_img)
+
+    for k in counter_objects.keys():
+        counter_objects[k] = counter_objects[k][:4]
 
     counter_list = list()
     for k in counter_objects.keys():

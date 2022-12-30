@@ -38,6 +38,9 @@ def create_game_objects(coords:tuple[int], image:np.ndarray, col_thres:float=.0)
             game_objects[color].append(game_object)
     return game_objects
 
+def get_x_y_h_w(box):
+    return int(box[0]), int(box[1]), int(box[2]), int(box[3])
+
 def cv2_imshow(title, img):
     """
     function:
@@ -101,6 +104,7 @@ def map_coords(coords_dict, board_coords):
 
 def draw_score(img:np.ndarray, yard_scores:dict[str:int], base_scores:dict[str:int], yards_objects, bases_objects) -> np.ndarray:
     img_score = img.copy()
+
     for k in yard_scores.keys():
         org = (yards_objects[k][0].x, yards_objects[k][0].y)
         img_score = cv2.putText(img_score, f'Yard: {yard_scores[k]}', org, cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_VALUES[k], 2, cv2.LINE_AA)
