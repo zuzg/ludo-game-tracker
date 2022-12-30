@@ -80,6 +80,16 @@ def get_percentage_value_pixels(image:np.ndarray, value:int=255) -> float:
   percentage = white_pixels / (image.shape[0] * image.shape[1]) * 100
   return percentage
 
+def intersection_percentage(obj1:GameObject, obj2:GameObject) -> float:
+    x1 = max(obj1.x, obj2.x)
+    y1 = max(obj1.y, obj2.y)
+    x2 = min(obj1.x + obj1.w, obj2.x + obj2.w)
+    y2 = min(obj1.y + obj1.h, obj2.y + obj2.h)
+
+    intersection_area = (x2 - x1) * (y2 - y1)
+    percentage = intersection_area / (obj1.w*obj1.h)
+    return percentage
+
 def map_coords(coords_dict, board_coords):
     coords_dict_temp=coords_dict.copy()
     x_board, y_board, _, _ = board_coords

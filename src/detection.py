@@ -124,7 +124,8 @@ def map_points_coords(img_coords, coords_list):
 def get_score(counters:list, yards_objects:dict):
     in_yard = {'red':0, 'green':0, 'blue':0, 'yellow':0}
     for counter in counters:
-        if objects_intersect(counter, yards_objects[counter.color][0]):
+        if objects_intersect(counter, yards_objects[counter.color][0]) and intersection_percentage(counter, yards_objects[counter.color][0]) > 0.5:
+            # print(intersection_percentage(counter, yards_objects[counter.color][0]))
             if in_yard[counter.color] < 4:
                 in_yard[counter.color] +=1
     return in_yard
@@ -156,6 +157,21 @@ def detect_counters(frame: np.ndarray, board_img) -> list:
 
     return counter_list    
 
+def get_bboxes(frame, board_img):
+    counters = detect_counters(frame, board_img)
+    bboxes = list()
+    counter_colors = []
+    for c in counters:
+        bboxes.append((c.x, c.y, c.w, c.h))
+        counter_colors.append(c.color)
+
+    tracker = cv2.legacy.MultiTracker.create()
+
+    for bbox in bboxes:
+        tracker.add(cv2.legacy.TrackerCSRT_create(), frame, bbox)
+
+    return bboxes, counter_colors, tracker
+
 def check_intersection(boxA: tuple, boxB: tuple) -> bool:
     x = max(boxA[0], boxB[0])
     y = max(boxA[1], boxB[1])
@@ -171,6 +187,7 @@ def check_intersection(boxA: tuple, boxB: tuple) -> bool:
 def objects_intersect(obj1:GameObject, obj2:GameObject) -> bool:
     return (obj1.x < obj2.x + obj2.w and obj1.x + obj1.w > obj2.x and
             obj1.y < obj2.y + obj2.h and obj1.y + obj1.h > obj2.y)
+
 
 
 def has_won(checkers: list[tuple]) -> bool:
