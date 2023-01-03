@@ -65,6 +65,7 @@ def overlay_info(frame: np.ndarray, dice: list, blobs: list, x: int) -> None:
 
 def get_dice_number(frame: np.ndarray, x) -> np.ndarray:
     blobs = get_blobs(frame[:, x:])
+    # blobs = get_blobs(frame[:, 800:])
     dice = get_dice_from_blobs(blobs)
     overlay_info(frame[:, x:], dice, blobs, x)
     return frame

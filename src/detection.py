@@ -124,7 +124,7 @@ def map_points_coords(img_coords, coords_list):
 def get_score(counters:list, yards_objects:dict):
     in_yard = {'red':0, 'green':0, 'blue':0, 'yellow':0}
     for counter in counters:
-        if objects_intersect(counter, yards_objects[counter.color][0]) and intersection_percentage(counter, yards_objects[counter.color][0]) > 0.5:
+        if len(yards_objects[counter.color]) > 0 and objects_intersect(counter, yards_objects[counter.color][0]) and intersection_percentage(counter, yards_objects[counter.color][0]) > 0.5:
             # print(intersection_percentage(counter, yards_objects[counter.color][0]))
             if in_yard[counter.color] < 4:
                 in_yard[counter.color] +=1
