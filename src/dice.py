@@ -46,6 +46,7 @@ def get_dice_from_blobs(blobs: list) -> list:
 def overlay_info(frame: np.ndarray, dice: list, blobs: list, x: int) -> None:
     for b in blobs:
         pos = b.pt
+        # print(pos, x)
         if pos[0] >= x:
             r = b.size / 2
 
@@ -53,21 +54,23 @@ def overlay_info(frame: np.ndarray, dice: list, blobs: list, x: int) -> None:
                     int(r), (255, 0, 0), 2)
 
     for d in dice:
-        if d[1] >= x:
-            textsize = cv2.getTextSize(
-                str(d[0]), cv2.FONT_HERSHEY_PLAIN, 3, 2)[0]
+        textsize = cv2.getTextSize(
+            str(d[0]), cv2.FONT_HERSHEY_PLAIN, 3, 2)[0]
 
-            cv2.putText(frame, str(d[0]),
-                        (int(d[1] - textsize[0] / 2),
-                        int(d[2] + textsize[1] / 2)),
-                        cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
+        cv2.putText(frame, str(d[0]),
+                    (int(d[1] - textsize[0] / 2),
+                    int(d[2] + textsize[1] / 2)),
+                    cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
 
 
 def get_dice_number(frame: np.ndarray, x) -> np.ndarray:
-    blobs = get_blobs(frame[:, x:])
+    rolling_frame = frame.copy()
+    # rolling_frame[:, :x] = np.zeros(shape=rolling_frame[:, :x].shape)
+    rolling_frame[:, :x].fill(255)
+    blobs = get_blobs(rolling_frame)
     # blobs = get_blobs(frame[:, 800:])
     dice = get_dice_from_blobs(blobs)
-    overlay_info(frame[:, x:], dice, blobs, x)
+    overlay_info(frame, dice, blobs, x)
     return frame
 
 
