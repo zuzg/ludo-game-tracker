@@ -25,7 +25,8 @@ def detect_board(image: np.ndarray, color: tuple[int] = (0, 0, 255)) -> tuple[np
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
 
-        if w * h > max_w * max_h: 
+        white_pixels = np.sum(image[y:y+h, x:x+w] >= 200)
+        if w * h > max_w * max_h and white_pixels/(w*h) < 0.5: 
             max_w = w
             max_h = h
             max_x, max_y = x, y
@@ -124,7 +125,7 @@ def map_points_coords(img_coords, coords_list):
 def get_score(counters:list, yards_objects:dict):
     in_yard = {'red':0, 'green':0, 'blue':0, 'yellow':0}
     for counter in counters:
-        if objects_intersect(counter, yards_objects[counter.color][0]) and intersection_percentage(counter, yards_objects[counter.color][0]) > 0.5:
+        if len(yards_objects[counter.color]) > 0 and objects_intersect(counter, yards_objects[counter.color][0]) and intersection_percentage(counter, yards_objects[counter.color][0]) > 0.5:
             # print(intersection_percentage(counter, yards_objects[counter.color][0]))
             if in_yard[counter.color] < 4:
                 in_yard[counter.color] +=1

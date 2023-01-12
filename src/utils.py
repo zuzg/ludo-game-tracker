@@ -93,24 +93,32 @@ def intersection_percentage(obj1:GameObject, obj2:GameObject) -> float:
     percentage = intersection_area / (obj1.w*obj1.h)
     return percentage
 
-def map_coords(coords_dict, board_coords):
+def map_coords(coords_dict, board_coords, board_img):
     coords_dict_temp=coords_dict.copy()
     x_board, y_board, _, _ = board_coords
     for k in coords_dict_temp.keys():
         for object in coords_dict_temp[k]:
             object.x += x_board
+            if object.x+object.w >= board_img.shape[1]:
+                object.w = board_img.shape[1]-object.x
+            
             object.y += y_board
+            if object.y+object.h >= board_img.shape[0]:
+                object.h = board_img.shape[0]-object.y
     return coords_dict_temp
 
 def draw_score(img:np.ndarray, yard_scores:dict[str:int], base_scores:dict[str:int], yards_objects, bases_objects) -> np.ndarray:
     img_score = img.copy()
+    img_score = cv2.putText(img_score, f'SCORE:', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2, cv2.LINE_AA)
+    pos = {'blue':(10, 250), 'green':(10, 350), 'yellow':(10, 450), 'red':(10,550)}
+    pos2 = {'blue':(10, 200), 'green':(10, 300), 'yellow':(10, 400), 'red':(10,500)}
 
     for k in yard_scores.keys():
-        org = (yards_objects[k][0].x, yards_objects[k][0].y)
+        org = pos[k][0], pos[k][1]
         img_score = cv2.putText(img_score, f'Yard: {yard_scores[k]}', org, cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_VALUES[k], 2, cv2.LINE_AA)
 
     for k in base_scores.keys():
-        org = (bases_objects[k][0].x, bases_objects[k][0].y)
+        org = pos2[k][0], pos2[k][1]
         img_score = cv2.putText(img_score, f'Base: {base_scores[k]}', org, cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_VALUES[k], 2, cv2.LINE_AA)
     return img_score
 
